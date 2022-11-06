@@ -1,0 +1,51 @@
+attribute vec3 uv3;
+attribute vec4 uv2;
+attribute vec4 secondary_colour;
+attribute vec4 colour;
+attribute vec2 uv1;
+attribute vec2 uv0;
+attribute vec3 normal;
+attribute vec4 vertex;
+uniform mat4 ViewProjection;
+uniform vec4 LightConfig1;
+uniform vec4 LightConfig0;
+uniform vec4 FogParams;
+uniform vec2 FadeDistance;
+uniform vec3 CameraPosition;
+void main ()
+{
+  vec4 tmpvar_1;
+  tmpvar_1.w = 1.0;
+  tmpvar_1.xyz = vertex.xyz;
+  vec4 tmpvar_2;
+  tmpvar_2 = (ViewProjection * tmpvar_1);
+  vec4 tmpvar_3;
+  tmpvar_3.xyz = (((vertex.xyz + (normal * 6.0)).xzy * LightConfig0.xyz) + LightConfig1.xyz);
+  tmpvar_3.w = ((FogParams.z - tmpvar_2.w) * FogParams.w);
+  vec4 tmpvar_4;
+  tmpvar_4.xyz = (CameraPosition - vertex.xyz);
+  tmpvar_4.w = tmpvar_2.w;
+  vec4 tmpvar_5;
+  tmpvar_5.xyz = normal;
+  tmpvar_5.w = (secondary_colour.w * 255.0);
+  vec4 tmpvar_6;
+  tmpvar_6.xyz = uv3;
+  tmpvar_6.w = (tmpvar_2.w * FadeDistance.y);
+  gl_Position = tmpvar_2;
+  vec4 tmpvar_7;
+  tmpvar_7.zw = vec2(0.0, 1.0);
+  tmpvar_7.xy = uv0;
+  gl_TexCoord[0] = tmpvar_7;
+  vec4 tmpvar_8;
+  tmpvar_8.zw = vec2(0.0, 1.0);
+  tmpvar_8.xy = uv1;
+  gl_TexCoord[1] = tmpvar_8;
+  gl_FrontColor = colour;
+  gl_TexCoord[2] = tmpvar_3;
+  gl_TexCoord[3] = tmpvar_4;
+  gl_TexCoord[4] = tmpvar_5;
+  gl_TexCoord[5] = uv2;
+  gl_TexCoord[6] = tmpvar_6;
+  gl_FogFragCoord = tmpvar_2.w;
+}
+

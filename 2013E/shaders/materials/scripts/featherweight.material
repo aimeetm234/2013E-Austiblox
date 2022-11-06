@@ -1,0 +1,21 @@
+material Featherweight
+{
+	technique lod0
+	{
+		pass
+		{
+			ambient vertexcolour
+			diffuse vertexcolour
+			specular vertexcolour 50
+			// mimic current wood shader limitation
+			max_lights 2
+
+			texture_unit
+			{
+				filtering trilinear
+		        
+				colour_op_ex source1 src_diffuse src_specular
+			}
+		}
+	}
+}

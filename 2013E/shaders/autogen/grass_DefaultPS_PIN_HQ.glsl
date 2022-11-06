@@ -1,0 +1,52 @@
+uniform sampler2D StudsMap;
+uniform sampler2D NormalMap;
+uniform sampler3D NoiseMap;
+uniform sampler3D LightMap;
+uniform vec4 LightConfig1;
+uniform vec4 LightBorder;
+uniform vec3 Lamp1Color;
+uniform vec3 Lamp0Dir;
+uniform vec3 Lamp0Color;
+uniform vec3 FogColor;
+uniform sampler2D DiffuseMap;
+uniform vec3 AmbientColor;
+void main ()
+{
+  vec4 tmpvar_1;
+  tmpvar_1 = gl_TexCoord[2];
+  vec4 tmpvar_2;
+  tmpvar_2 = gl_TexCoord[4];
+  vec4 tmpvar_3;
+  tmpvar_3 = gl_TexCoord[5];
+  vec4 oColor0_4;
+  vec4 albedo_5;
+  vec4 tmpvar_6;
+  tmpvar_6 = texture2D (StudsMap, gl_TexCoord[1].xy);
+  vec2 tmpvar_7;
+  tmpvar_7 = (gl_TexCoord[0].xy * 0.1);
+  vec3 tmpvar_8;
+  tmpvar_8 = mix (mix (clamp (mix (((texture2D (DiffuseMap, tmpvar_7).xyz + gl_Color.xyz) - vec3(0.31, 0.43, 0.146)), texture2D (NormalMap, tmpvar_7).xyz, vec3(clamp (((((((((texture3D (NoiseMap, (tmpvar_3.zyx * 0.06)).x * 0.6) - (texture3D (NoiseMap, (tmpvar_3.xyz * 0.27)).x * 0.4)) + (texture3D (NoiseMap, (tmpvar_3.xyz * 0.012)).x * 0.3)) - 0.95) + 0.3) / 2.0) / 0.3) + 0.5), 0.0, 1.0))), 0.0, 1.0), gl_Color.xyz, vec3(clamp (gl_TexCoord[6].w, 0.0, 1.0))), tmpvar_6.xyz, tmpvar_6.www);
+  vec4 tmpvar_9;
+  tmpvar_9.xyz = tmpvar_8;
+  tmpvar_9.w = gl_Color.w;
+  albedo_5.w = tmpvar_9.w;
+  vec3 tmpvar_10;
+  tmpvar_10 = normalize(tmpvar_2.xyz);
+  float tmpvar_11;
+  tmpvar_11 = dot (tmpvar_10, -(Lamp0Dir));
+  vec4 tmpvar_12;
+  tmpvar_12.xyz = ((clamp (tmpvar_11, 0.0, 1.0) * Lamp0Color) + (max (-(tmpvar_11), 0.0) * Lamp1Color));
+  tmpvar_12.w = (float((tmpvar_11 >= 0.0)) * 0.1);
+  vec3 tmpvar_13;
+  tmpvar_13 = clamp (tmpvar_1.xyz, 0.0, 1.0);
+  vec3 tmpvar_14;
+  tmpvar_14 = abs((tmpvar_13 - 0.5));
+  vec4 tmpvar_15;
+  tmpvar_15 = mix (LightBorder, texture3D (LightMap, (tmpvar_13 - LightConfig1.xyz)), vec4(float((0.49 >= max (tmpvar_14.x, max (tmpvar_14.y, tmpvar_14.z))))));
+  albedo_5.xyz = tmpvar_8;
+  oColor0_4.xyz = ((((AmbientColor + (tmpvar_12.xyz * tmpvar_15.w)) + tmpvar_15.xyz) * tmpvar_8) + (Lamp0Color * ((tmpvar_15.w * tmpvar_12.w) * pow (clamp (dot (tmpvar_10, normalize((-(Lamp0Dir) + normalize(gl_TexCoord[3].xyz)))), 0.0, 1.0), tmpvar_2.w))));
+  oColor0_4.w = albedo_5.w;
+  oColor0_4.xyz = mix (FogColor, oColor0_4.xyz, vec3(clamp (tmpvar_1.w, 0.0, 1.0)));
+  gl_FragData[0] = oColor0_4;
+}
+

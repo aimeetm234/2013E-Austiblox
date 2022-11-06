@@ -1,0 +1,257 @@
+vertex_program MegaClusterVP cg
+{
+	source materials/programs/megacluster.cgfx
+	profiles vs_1_1
+	entry_point MegaClusterVS
+}
+
+fragment_program MegaClusterFP cg
+{
+	source materials/programs/megacluster.cgfx
+	profiles ps_2_0
+	entry_point MegaClusterPS
+	compile_arguments -DGBUFFER
+}
+
+
+material MegaCluster_Low
+{
+    technique mobile
+    {
+        gpu_vendor_rule include imagination_technologies
+
+		pass
+		{
+			ambient 0.5 0.5 0.5
+            diffuse 1.0 1.0 1.0
+			// mimic current wood shader limitation
+			max_lights 2
+
+			texture_unit
+			{
+				tex_coord_set 0
+				texture textures/ClusterMipsClose.pvr
+		        filtering trilinear
+
+                transform 0.0009765625 0 0 0 0 0.0009765625 0 0 0 0 1 0 0 0 0 1
+		        
+		        colour_op_ex source1 src_texture src_texture
+		        alpha_op_ex source1 src_texture src_texture
+			}
+			texture_unit
+			{
+				tex_coord_set 1
+				texture textures/ClusterMipsFar.pvr
+		        filtering trilinear
+		        
+                transform 0.0009765625 0 0 0 0 0.0009765625 0 0 0 0 1 0 0 0 0 1
+		        
+		        colour_op_ex blend_current_alpha src_current src_texture
+			}
+
+			texture_unit
+			{
+		        colour_op_ex modulate src_current src_diffuse
+			}
+		}
+	}
+
+	technique gbuffer
+	{
+        gpu_vendor_rule exclude imagination_technologies
+        
+		scheme MRT
+		pass
+		{
+			// mimic current wood shader limitation
+			max_lights 2
+            fog_override true
+
+			vertex_program_ref MegaClusterVP
+			{
+				param_named_auto Lamp0Pos light_position 0
+				param_named_auto Lamp1Pos light_position 1
+				param_named_auto WvpXf worldviewproj_matrix
+				param_named_auto WvXf worldview_matrix
+				param_named_auto WorldXf world_matrix
+				param_named_auto Lamp0Color light_diffuse_colour 0
+				param_named_auto Lamp1Color light_diffuse_colour 1
+				param_named_auto AmbientLight ambient_light_colour
+			}
+
+			fragment_program_ref MegaClusterFP
+			{
+				param_named_auto FogColour fog_colour
+				param_named_auto FogParams fog_params
+			}
+
+			texture_unit
+			{
+				tex_coord_set 0
+				texture textures/ClusterMipsClose.dds
+		        filtering trilinear
+			}
+			texture_unit
+			{
+				tex_coord_set 1
+				texture textures/ClusterMipsFar.dds
+		        filtering trilinear
+			}
+		}
+	}
+
+	technique ffp
+	{
+        gpu_vendor_rule exclude imagination_technologies
+
+		pass
+		{
+			ambient 0.5 0.5 0.5
+            diffuse 1.0 1.0 1.0
+			// mimic current wood shader limitation
+			max_lights 2
+
+			texture_unit
+			{
+				tex_coord_set 0
+				texture textures/ClusterMipsClose.dds
+		        filtering trilinear
+		        
+		        colour_op_ex source1 src_texture src_texture
+		        alpha_op_ex source1 src_texture src_texture
+			}
+			texture_unit
+			{
+				tex_coord_set 1
+				texture textures/ClusterMipsFar.dds
+		        filtering trilinear
+		        
+		        colour_op_ex blend_current_alpha src_current src_texture
+			}
+
+			texture_unit
+			{
+		        colour_op_ex modulate src_current src_diffuse
+			}
+		}
+	}
+}
+
+vertex_program WaterVPCG cg
+{
+	source materials/programs/water.cgfx
+	profiles vs_1_1
+	entry_point WaterVS
+}
+
+vertex_program WaterVPGLSL glsl
+{
+	source materials/programs/glsl/vert/water.vert
+	preprocessor_defines GLSL=1,GLSL_VERT=1
+}
+
+vertex_program WaterVP unified
+{
+	delegate WaterVPCG
+	delegate WaterVPGLSL
+}
+
+abstract technique BaseWaterTechnique
+{
+	pass 
+	{
+		ambient 0.5 0.5 0.5
+		diffuse 1.0 1.0 1.0
+        specular 1.0 1.0 1.0 25 // keep this in line with ice
+			
+		cull_hardware none
+		cull_software none
+		depth_bias -4.8 -0.6 // keep this in line with face decals
+
+		// mimic current wood shader limitation
+		max_lights 2
+
+		texture_unit {
+			texture textures/water_Subsurface.dds
+			tex_coord_set 0
+			colour_op_ex source1 src_texture src_texture
+		}
+			
+		texture_unit {
+			texture textures/water_Wave.dds
+			tex_coord_set 0
+			filtering trilinear
+			colour_op_ex blend_texture_alpha src_texture src_current 
+		}
+
+		texture_unit {
+			texture textures/water_Subsurface.dds
+			tex_coord_set 1
+			filtering trilinear
+			colour_op_ex blend_texture_alpha src_current src_texture
+		}
+			
+		texture_unit {
+			colour_op_ex modulate src_current src_diffuse
+		}		
+	}
+}
+
+material MegaCluster_Water
+{
+    technique mobile : BaseWaterTechnique
+    {
+        gpu_vendor_rule include imagination_technologies
+
+        pass
+        {
+            texture_unit
+            {
+                scale 1024 1024
+				scroll_anim 0 0.75
+            }
+
+            texture_unit
+            {
+                scale 1024 1024
+				scroll_anim 0 1
+            }
+
+            texture_unit
+            {
+                scale 1024 1024
+            }
+        }
+    }
+
+	technique CGWaterTechnique : BaseWaterTechnique {
+		pass 0
+		{
+			vertex_program_ref WaterVP
+			{
+				param_named_auto Lamp0Pos light_position_object_space 0
+				param_named_auto Lamp1Pos light_position_object_space 1
+				param_named_auto WvpXf worldviewproj_matrix
+				param_named_auto timeframe time_0_1 4
+				param_named_auto sintime sintime_0_2pi 4
+				param_named ambientLight float3 0.5 0.5 0.5
+				param_named_auto Lamp0Color light_diffuse_colour 0
+				param_named_auto Lamp1Color light_diffuse_colour 1
+			}
+		}
+	}
+
+	technique NoVertexShaded : BaseWaterTechnique
+	{
+		pass 0
+		{
+			texture_unit 0 {
+				scroll_anim 0 0.75
+			}
+			
+			texture_unit 1 {
+				scroll_anim 0 1
+			}
+		}
+	}
+}

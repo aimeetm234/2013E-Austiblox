@@ -1,0 +1,1145 @@
+vertex_program DefaultVPParams null
+{
+    default_params
+    {
+        param_named_auto ViewProjection viewproj_matrix
+        param_named_auto CameraPosition camera_position
+
+        param_named_auto Lamp0Dir light_direction 0
+        param_named_auto Lamp1Dir light_direction 1
+        param_named_auto Lamp0Color light_diffuse_colour 0
+        param_named_auto Lamp1Color light_diffuse_colour 1
+        param_named_auto AmbientColor ambient_light_colour
+    }
+
+    column_major_matrices false
+}
+
+vertex_program DefaultStaticVPParams null: DefaultVPParams
+{
+    default_params
+    {
+        param_named_auto WorldMatrix world_matrix
+    }
+}
+
+vertex_program DefaultSkinnedVPParams null: DefaultVPParams
+{
+    default_params
+    {
+        param_named_auto WorldMatrixArray world_matrix_array_3x4
+    }
+}
+
+vertex_program DefaultStaticDebugVPParams null: DefaultStaticVPParams
+{
+    default_params
+    {
+        param_named_auto DebugColor surface_ambient_colour
+    }
+}
+
+vertex_program DefaultSkinnedDebugVPParams null: DefaultSkinnedVPParams
+{
+    default_params
+    {
+        param_named_auto DebugColor surface_ambient_colour
+    }
+}
+
+fragment_program DefaultFPParams null
+{
+    default_params
+    {
+    }
+
+    column_major_matrices false
+}
+
+fragment_program DefaultHQFPParams null: DefaultFPParams
+{
+    default_params
+    {
+        param_named_auto Lamp0Dir light_direction 0
+    }
+
+    column_major_matrices false
+}
+
+vertex_program DefaultStaticVPHLSL hlsl: DefaultStaticVPParams
+{
+	source default.hlsl
+	target vs_2_0
+	entry_point DefaultVS
+}
+
+vertex_program DefaultStaticVPGLSL glsl: DefaultStaticVPParams
+{
+	source autogen/default_DefaultVS.glsl
+}
+
+vertex_program DefaultStaticVP unified
+{
+    delegate DefaultStaticVPHLSL
+    delegate DefaultStaticVPGLSL
+}
+
+vertex_program DefaultSkinnedVPHLSL hlsl: DefaultSkinnedVPParams
+{
+	source default.hlsl
+	target vs_2_0
+	entry_point DefaultVS
+    preprocessor_defines PIN_SKINNED
+}
+
+vertex_program DefaultSkinnedVPGLSL glsl: DefaultSkinnedVPParams
+{
+	source autogen/default_DefaultVS_PIN_SKINNED.glsl
+}
+
+vertex_program DefaultSkinnedVP unified
+{
+    delegate DefaultSkinnedVPHLSL
+    delegate DefaultSkinnedVPGLSL
+}
+
+vertex_program DefaultStaticHQVPHLSL hlsl: DefaultStaticVPParams
+{
+	source default.hlsl
+	target vs_2_0
+	entry_point DefaultVS
+	preprocessor_defines PIN_HQ
+}
+
+vertex_program DefaultStaticHQVPGLSL glsl: DefaultStaticVPParams
+{
+    source autogen/default_DefaultVS_PIN_HQ.glsl
+}
+
+vertex_program DefaultStaticHQVP unified
+{
+    delegate DefaultStaticHQVPHLSL
+    delegate DefaultStaticHQVPGLSL
+}
+
+vertex_program DefaultSkinnedHQVPHLSL hlsl: DefaultSkinnedVPParams
+{
+	source default.hlsl
+	target vs_2_0
+	entry_point DefaultVS
+	preprocessor_defines PIN_SKINNED PIN_HQ
+}
+
+vertex_program DefaultSkinnedHQVPGLSL glsl: DefaultSkinnedVPParams
+{
+    source autogen/default_DefaultVS_PIN_SKINNED_PIN_HQ.glsl
+}
+
+vertex_program DefaultSkinnedHQVP unified
+{
+    delegate DefaultSkinnedHQVPHLSL
+    delegate DefaultSkinnedHQVPGLSL
+}
+
+vertex_program DefaultStaticDebugVPHLSL hlsl: DefaultStaticDebugVPParams
+{
+	source default.hlsl
+	target vs_2_0
+	entry_point DefaultVS
+    preprocessor_defines PIN_DEBUG
+}
+
+vertex_program DefaultStaticDebugVPGLSL glsl: DefaultStaticDebugVPParams
+{
+	source autogen/default_DefaultVS_PIN_DEBUG.glsl
+}
+
+vertex_program DefaultStaticDebugVP unified
+{
+    delegate DefaultStaticDebugVPHLSL
+    delegate DefaultStaticDebugVPGLSL
+}
+
+vertex_program DefaultSkinnedDebugVPHLSL hlsl: DefaultSkinnedDebugVPParams
+{
+	source default.hlsl
+	target vs_2_0
+	entry_point DefaultVS
+    preprocessor_defines PIN_SKINNED PIN_DEBUG
+}
+
+vertex_program DefaultSkinnedDebugVPGLSL glsl: DefaultSkinnedDebugVPParams
+{
+	source autogen/default_DefaultVS_PIN_SKINNED_PIN_DEBUG.glsl
+}
+
+vertex_program DefaultSkinnedDebugVP unified
+{
+    delegate DefaultSkinnedDebugVPHLSL
+    delegate DefaultSkinnedDebugVPGLSL
+}
+
+vertex_program DefaultStaticHQDebugVP hlsl: DefaultStaticDebugVPParams
+{
+	source default.hlsl
+	target vs_2_0
+	entry_point DefaultVS
+	preprocessor_defines PIN_HQ PIN_DEBUG
+}
+
+vertex_program DefaultSkinnedHQDebugVP hlsl: DefaultSkinnedDebugVPParams
+{
+	source default.hlsl
+	target vs_2_0
+	entry_point DefaultVS
+	preprocessor_defines PIN_SKINNED PIN_HQ PIN_DEBUG
+}
+
+fragment_program DefaultFPHLSL hlsl: DefaultFPParams
+{
+	source default.hlsl
+	target ps_2_0
+	entry_point DefaultPS
+}
+
+fragment_program DefaultFPGLSL glsl: DefaultFPParams
+{
+	source autogen/default_DefaultPS.glsl
+
+	default_params
+	{
+		param_named DiffuseMap int 0
+	}
+}
+
+fragment_program DefaultFP unified
+{
+	delegate DefaultFPHLSL
+	delegate DefaultFPGLSL
+}
+
+fragment_program DefaultHQFPHLSL hlsl: DefaultHQFPParams
+{
+	source default.hlsl
+	target ps_2_0
+	entry_point DefaultPS
+    preprocessor_defines PIN_HQ
+}
+
+fragment_program DefaultHQFPGLSL glsl: DefaultHQFPParams
+{
+	source autogen/default_DefaultPS_PIN_HQ.glsl
+
+	default_params
+	{
+		param_named DiffuseMap int 0
+	}
+}
+
+fragment_program DefaultHQFP unified
+{
+	delegate DefaultHQFPHLSL
+	delegate DefaultHQFPGLSL
+}
+
+fragment_program DefaultMaterialsFPHLSL hlsl: DefaultFPParams
+{
+	source default.hlsl
+	target ps_2_0
+	entry_point DefaultPS
+	preprocessor_defines PIN_MATERIALS
+}
+
+fragment_program DefaultMaterialsFPGLSL glsl: DefaultFPParams
+{
+	source autogen/default_DefaultPS_PIN_MATERIALS.glsl
+
+	default_params
+	{
+		param_named DiffuseMap int 0
+		param_named StudsMap int 1
+	}
+}
+
+fragment_program DefaultMaterialsFP unified
+{
+	delegate DefaultMaterialsFPHLSL
+	delegate DefaultMaterialsFPGLSL
+}
+
+fragment_program DefaultMaterialsHQFPHLSL hlsl: DefaultHQFPParams
+{
+	source default.hlsl
+	target ps_2_0
+	entry_point DefaultPS
+	preprocessor_defines PIN_HQ PIN_MATERIALS
+}
+
+fragment_program DefaultMaterialsHQFPGLSL glsl: DefaultHQFPParams
+{
+	source autogen/default_DefaultPS_PIN_HQ_PIN_MATERIALS.glsl
+
+	default_params
+	{
+		param_named DiffuseMap int 0
+		param_named StudsMap int 1
+	}
+}
+
+fragment_program DefaultMaterialsHQFP unified
+{
+	delegate DefaultMaterialsHQFPHLSL
+	delegate DefaultMaterialsHQFPGLSL
+}
+
+fragment_program DefaultGBufferFP hlsl: DefaultHQFPParams
+{
+	source default.hlsl
+	target ps_2_0
+	entry_point DefaultPS
+	preprocessor_defines PIN_HQ PIN_GBUFFER
+}
+
+fragment_program DefaultGBufferMaterialsFP hlsl: DefaultHQFPParams
+{
+	source default.hlsl
+	target ps_2_0
+	entry_point DefaultPS
+	preprocessor_defines PIN_HQ PIN_GBUFFER PIN_MATERIALS
+}
+
+vertex_program DefaultShadowVPParams null
+{
+    default_params
+    {
+        param_named_auto ViewProjection viewproj_matrix
+
+        param_named_auto Lamp0Dir light_direction 0
+        param_named_auto ShadowExtrusionDistance shadow_extrusion_distance 0
+
+        param_named_auto WorldMatrixArray world_matrix_array_3x4
+    }
+
+    column_major_matrices false
+}
+
+vertex_program DefaultShadowVPHLSL hlsl: DefaultShadowVPParams
+{
+	source shadowextrude.hlsl
+	target vs_2_0
+	entry_point DefaultVS
+}
+
+vertex_program DefaultShadowVPGLSL glsl: DefaultShadowVPParams
+{
+	source autogen/shadowextrude_DefaultVS.glsl
+}
+
+vertex_program DefaultShadowVP unified
+{
+    delegate DefaultShadowVPHLSL
+    delegate DefaultShadowVPGLSL
+}
+
+abstract pass DefaultPass
+{
+    texture_unit DiffuseMap
+    {
+        texture textures/SurfacesDefault.png
+        filtering trilinear
+    }
+}
+
+abstract pass DefaultMaterialsPassFFP
+{
+    texture_unit DiffuseMap
+    {
+        tex_address_mode wrap clamp
+        texture textures/unified_new.dds 2d 6
+        filtering trilinear	        
+
+        tex_coord_set 0
+        colour_op_ex add_signed src_texture src_current
+        alpha_op_ex source1 src_current src_texture
+    }
+    
+    texture_unit StudsMap
+    {
+        tex_address_mode wrap clamp
+        texture textures/unified_studs.png 
+        filtering trilinear
+        
+        tex_coord_set 1
+        colour_op alpha_blend
+        alpha_op_ex source1 src_current src_texture
+    }
+}
+
+abstract pass DefaultMaterialsPassShaders
+{
+    texture_unit DiffuseMap
+    {
+        tex_address_mode wrap clamp
+        texture textures/unified_new.dds 2d 6     
+        filtering trilinear
+    }
+    
+    texture_unit StudsMap
+    {
+        tex_address_mode wrap clamp
+        texture textures/unified_studs.png
+        filtering trilinear
+    }
+}
+
+material DefaultStatic
+{
+	technique mobile
+	{
+        lod_index 1
+
+        gpu_vendor_rule include imagination_technologies
+
+		pass: DefaultPass
+		{
+			max_lights 2
+
+			ambient vertexcolour
+			diffuse vertexcolour
+			specular vertexcolour 50
+		}
+	}
+
+	technique ffp
+	{
+        lod_index 1
+
+		pass: DefaultPass
+		{
+			max_lights 2
+
+			ambient vertexcolour
+			diffuse vertexcolour
+			specular vertexcolour 50
+		}
+	}
+
+	technique hq
+	{
+        lod_index 0
+
+		pass: DefaultPass
+		{
+			vertex_program_ref DefaultStaticHQVP
+			{
+			}
+
+			fragment_program_ref DefaultHQFP
+			{
+			}
+		}
+	}
+
+	technique gbuffer
+	{
+        scheme MRT
+
+		pass: DefaultPass
+		{
+			vertex_program_ref DefaultStaticHQVP
+			{
+			}
+
+			fragment_program_ref DefaultGBufferFP
+			{
+			}
+		}
+	}
+}
+
+material DefaultStaticMaterialsLegacy
+{
+	technique ffp
+	{
+		pass: DefaultMaterialsPassFFP
+		{
+			max_lights 2
+
+			ambient vertexcolour
+			diffuse vertexcolour
+			specular vertexcolour 50
+		}
+	}
+
+	technique gbuffer
+	{
+        scheme MRT
+
+		pass: DefaultMaterialsPassShaders
+		{
+			vertex_program_ref DefaultStaticHQVP
+			{
+			}
+
+			fragment_program_ref DefaultGBufferMaterialsFP
+			{
+			}
+		}
+	}
+}
+
+
+material DefaultStaticMaterials
+{
+	technique mobile
+	{
+        lod_index 1
+
+        gpu_vendor_rule include imagination_technologies
+
+		pass: DefaultMaterialsPassFFP
+		{
+			max_lights 2
+
+			ambient vertexcolour
+			diffuse vertexcolour
+			specular vertexcolour 50
+		}
+	}
+
+	technique ffp
+	{
+        lod_index 1
+
+		pass: DefaultMaterialsPassFFP
+		{
+			max_lights 2
+
+			ambient vertexcolour
+			diffuse vertexcolour
+			specular vertexcolour 50
+		}
+	}
+
+	technique hq
+	{
+        lod_index 0
+
+		pass: DefaultMaterialsPassShaders
+		{
+			vertex_program_ref DefaultStaticHQVP
+			{
+			}
+
+			fragment_program_ref DefaultMaterialsHQFP
+			{
+			}
+		}
+	}
+
+	technique gbuffer
+	{
+        scheme MRT
+
+		pass: DefaultMaterialsPassShaders
+		{
+			vertex_program_ref DefaultStaticHQVP
+			{
+			}
+
+			fragment_program_ref DefaultGBufferMaterialsFP
+			{
+			}
+		}
+	}
+}
+
+material DefaultSkinned
+{
+	technique mobile
+	{
+        lod_index 1
+
+        gpu_vendor_rule include imagination_technologies
+
+		pass: DefaultPass
+		{
+			max_lights 2
+
+			ambient vertexcolour
+			diffuse vertexcolour
+			specular vertexcolour 50
+		}
+	}
+
+	technique ffp
+	{
+        lod_index 1
+
+		pass: DefaultPass
+		{
+			vertex_program_ref DefaultSkinnedVP
+			{
+			}
+		}
+	}
+
+	technique hq
+	{
+        lod_index 0
+
+		pass: DefaultPass
+		{
+			vertex_program_ref DefaultSkinnedHQVP
+			{
+			}
+
+			fragment_program_ref DefaultHQFP
+			{
+			}
+		}
+	}
+
+	technique gbuffer
+	{
+        scheme MRT
+
+		pass: DefaultPass
+		{
+			vertex_program_ref DefaultSkinnedHQVP
+			{
+			}
+
+			fragment_program_ref DefaultGBufferFP
+			{
+			}
+		}
+	}
+}
+
+material DefaultSkinnedMaterials
+{
+	technique mobile
+	{
+        lod_index 1
+
+        gpu_vendor_rule include imagination_technologies
+
+		pass: DefaultMaterialsPassFFP
+		{
+			max_lights 2
+
+			ambient vertexcolour
+			diffuse vertexcolour
+			specular vertexcolour 50
+		}
+	}
+
+	technique ffp
+	{
+        lod_index 1
+
+		pass: DefaultMaterialsPassFFP
+		{
+			vertex_program_ref DefaultSkinnedVP
+			{
+			}
+		}
+	}
+
+	technique hq
+	{
+        lod_index 0
+
+		pass: DefaultMaterialsPassShaders
+		{
+			vertex_program_ref DefaultSkinnedHQVP
+			{
+			}
+
+			fragment_program_ref DefaultMaterialsHQFP
+			{
+			}
+		}
+	}
+
+	technique gbuffer
+	{
+        scheme MRT
+
+		pass: DefaultMaterialsPassShaders
+		{
+			vertex_program_ref DefaultSkinnedHQVP
+			{
+			}
+
+			fragment_program_ref DefaultGBufferMaterialsFP
+			{
+			}
+		}
+	}
+}
+
+material DefaultSkinnedAlphaKill: DefaultSkinned
+{
+	technique mobile
+    {
+        pass
+        {
+            alpha_rejection greater_equal 64
+        }
+    }
+
+	technique ffp
+	{
+		pass
+		{
+            alpha_rejection greater_equal 64
+        }
+    }
+
+	technique hq
+    {
+        pass
+        {
+            alpha_rejection greater_equal 64
+        }
+    }
+
+	technique gbuffer
+	{
+		pass
+		{
+            alpha_rejection greater_equal 64
+        }
+    }
+}
+
+material DefaultSkinnedMaterialsAlphaKill: DefaultSkinnedMaterials
+{
+	technique mobile
+    {
+        pass
+        {
+            alpha_rejection greater_equal 64
+        }
+    }
+
+	technique ffp
+	{
+		pass
+		{
+            alpha_rejection greater_equal 64
+        }
+    }
+
+	technique hq
+    {
+        pass
+        {
+            alpha_rejection greater_equal 64
+        }
+    }
+
+	technique gbuffer
+	{
+		pass
+		{
+            alpha_rejection greater_equal 64
+        }
+    }
+}
+
+material DefaultStaticTransparent: DefaultStatic
+{
+	technique mobile
+    {
+        pass
+        {
+            scene_blend alpha_blend
+            depth_write off
+        }
+    }
+
+	technique ffp
+	{
+		pass
+		{
+			scene_blend alpha_blend
+            depth_write off
+        }
+    }
+
+	technique hq
+	{
+		pass
+		{
+			scene_blend alpha_blend
+            depth_write off
+        }
+    }
+
+	technique gbuffer
+	{
+		pass
+		{
+			scene_blend alpha_blend
+            depth_write off
+        }
+    }
+}
+
+material DefaultSkinnedTransparent: DefaultSkinned
+{
+	technique mobile
+    {
+        pass
+        {
+            scene_blend alpha_blend
+            depth_write off
+        }
+    }
+
+	technique ffp
+	{
+		pass
+		{
+			scene_blend alpha_blend
+            depth_write off
+        }
+    }
+
+	technique hq
+	{
+		pass
+		{
+			scene_blend alpha_blend
+            depth_write off
+        }
+    }
+
+	technique gbuffer
+	{
+		pass
+		{
+			scene_blend alpha_blend
+            depth_write off
+        }
+    }
+}
+
+material DefaultStaticMaterialsTransparent: DefaultStaticMaterials
+{
+	technique mobile
+    {
+        pass
+        {
+            scene_blend alpha_blend
+            depth_write off
+        }
+    }
+
+	technique ffp
+	{
+		pass
+		{
+			scene_blend alpha_blend
+            depth_write off
+        }
+    }
+
+	technique hq
+	{
+		pass
+		{
+			scene_blend alpha_blend
+            depth_write off
+        }
+    }
+
+	technique gbuffer
+	{
+		pass
+		{
+			scene_blend alpha_blend
+            depth_write off
+        }
+    }
+}
+
+material DefaultSkinnedMaterialsTransparent: DefaultSkinnedMaterials
+{
+	technique mobile
+    {
+        pass
+        {
+            scene_blend alpha_blend
+            depth_write off
+        }
+    }
+
+	technique ffp
+	{
+		pass
+		{
+			scene_blend alpha_blend
+            depth_write off
+        }
+    }
+
+	technique hq
+	{
+		pass
+		{
+			scene_blend alpha_blend
+            depth_write off
+        }
+    }
+
+	technique gbuffer
+	{
+		pass
+		{
+			scene_blend alpha_blend
+            depth_write off
+        }
+    }
+}
+
+abstract pass DefaultDecalPass
+{
+    scene_blend alpha_blend
+    depth_bias 4 0.5
+    depth_write off
+}
+
+material DefaultStaticDecal: DefaultStatic
+{
+	technique mobile
+    {
+        pass: DefaultDecalPass
+        {
+            transparent_sorting off
+        }
+    }
+
+	technique ffp
+	{
+        pass: DefaultDecalPass
+		{
+            transparent_sorting off
+        }
+    }
+
+	technique hq
+	{
+        pass: DefaultDecalPass
+		{
+            transparent_sorting off
+        }
+    }
+
+	technique gbuffer
+	{
+        pass: DefaultDecalPass
+		{
+            transparent_sorting off
+        }
+    }
+}
+
+material DefaultSkinnedDecal: DefaultSkinned
+{
+	technique mobile
+    {
+        pass: DefaultDecalPass
+        {
+            transparent_sorting off
+        }
+    }
+
+	technique ffp
+	{
+        pass: DefaultDecalPass
+		{
+            transparent_sorting off
+        }
+    }
+
+	technique hq
+	{
+        pass: DefaultDecalPass
+		{
+            transparent_sorting off
+        }
+    }
+
+	technique gbuffer
+	{
+        pass: DefaultDecalPass
+		{
+            transparent_sorting off
+        }
+    }
+}
+
+material DefaultStaticDecalTransparent: DefaultStaticDecal
+{
+	technique mobile
+    {
+        pass
+        {
+            transparent_sorting on
+        }
+    }
+
+	technique ffp
+	{
+        pass
+		{
+            transparent_sorting on
+        }
+    }
+
+	technique hq
+	{
+        pass
+        {
+            transparent_sorting on
+        }
+    }
+
+	technique gbuffer
+	{
+        pass
+		{
+            transparent_sorting on
+        }
+    }
+}
+
+material DefaultSkinnedDecalTransparent: DefaultSkinnedDecal
+{
+	technique mobile
+    {
+        pass
+        {
+            transparent_sorting on
+        }
+    }
+
+	technique ffp
+	{
+        pass
+		{
+            transparent_sorting on
+        }
+    }
+
+	technique hq
+	{
+        pass
+        {
+            transparent_sorting on
+        }
+    }
+
+	technique gbuffer
+	{
+        pass
+		{
+            transparent_sorting on
+        }
+    }
+}
+
+material DefaultShadow
+{
+    technique
+    {
+        pass
+        {
+            depth_write off
+
+            vertex_program_ref DefaultShadowVP
+            {
+            }
+        }
+    }
+}
+
+material DefaultStaticDebug: DefaultStatic
+{
+    technique mobile
+    {
+        pass
+        {
+			ambient 1 1 1
+			diffuse 1 1 1
+			specular 0 0 0 1
+        }
+    }
+
+    technique ffp
+    {
+        pass
+        {
+			vertex_program_ref DefaultStaticDebugVP
+			{
+			}
+        }
+    }
+
+    technique hq
+    {
+        scheme Unused
+    }
+
+    technique gbuffer
+    {
+        pass
+        {
+            vertex_program_ref DefaultStaticHQDebugVP
+            {
+            }
+        }
+    }
+}
+
+material DefaultSkinnedDebug: DefaultSkinned
+{
+    technique mobile
+    {
+        pass
+        {
+			ambient 1 1 1
+			diffuse 1 1 1
+			specular 0 0 0 1
+        }
+    }
+
+    technique ffp
+    {
+        pass
+        {
+			vertex_program_ref DefaultSkinnedDebugVP
+			{
+			}
+        }
+    }
+
+    technique hq
+    {
+        scheme Unused
+    }
+
+    technique gbuffer
+    {
+        pass
+        {
+            vertex_program_ref DefaultSkinnedHQDebugVP
+            {
+            }
+        }
+    }
+}

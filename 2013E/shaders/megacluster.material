@@ -1,0 +1,425 @@
+vertex_program MegaClusterVPParams null
+{
+    default_params
+    {
+        param_named_auto CameraPosition camera_position
+        param_named_auto ViewProjection viewproj_matrix
+
+        param_named_auto Lamp0Dir light_direction 0
+        param_named_auto Lamp1Dir light_direction 1
+        param_named_auto Lamp0Color light_diffuse_colour 0
+        param_named_auto Lamp1Color light_diffuse_colour 1
+        param_named_auto AmbientColor ambient_light_colour
+
+        param_named_auto FogColor fog_colour
+        param_named_auto FogParams fog_params
+
+        param_named_auto LightConfig0 light_custom 0 0
+        param_named_auto LightConfig1 light_custom 0 1
+
+        param_named_auto WorldMatrix world_matrix
+    }
+
+    column_major_matrices false
+}
+
+vertex_program MegaClusterWaterVPParams null: MegaClusterVPParams
+{
+	default_params
+	{
+		param_named_auto WaterTimeframe time_0_1 4
+		param_named_auto WaterSintime sintime_0_2pi 4
+	}
+}
+
+fragment_program MegaClusterFPParams null
+{
+    default_params
+    {
+        param_named_auto Lamp0Dir light_direction 0
+        param_named_auto Lamp1Dir light_direction 1
+        param_named_auto Lamp0Color light_diffuse_colour 0
+        param_named_auto Lamp1Color light_diffuse_colour 1
+        param_named_auto AmbientColor ambient_light_colour
+        
+        param_named_auto FogColor fog_colour
+        param_named_auto FogParams fog_params
+
+        param_named_auto LightConfig0 light_custom 0 0
+        param_named_auto LightConfig1 light_custom 0 1
+        param_named_auto LightBorder light_custom 0 2
+    }
+
+    column_major_matrices false
+}
+
+vertex_program MegaClusterVPHLSL hlsl: MegaClusterVPParams
+{
+	source megacluster.hlsl
+	target vs_2_0
+	entry_point MegaClusterVS
+}
+
+vertex_program MegaClusterVPGLSL glsl: MegaClusterVPParams
+{
+	source autogen/megacluster_MegaClusterVS.glsl
+}
+
+vertex_program MegaClusterVP unified
+{
+    delegate MegaClusterVPHLSL
+    delegate MegaClusterVPGLSL
+}
+
+fragment_program MegaClusterFPHLSL hlsl: MegaClusterFPParams
+{
+	source megacluster.hlsl
+	target ps_2_0
+	entry_point MegaClusterPS
+}
+
+fragment_program MegaClusterFPGLSL glsl: MegaClusterFPParams
+{
+	source autogen/megacluster_MegaClusterPS.glsl
+
+	default_params
+	{
+		param_named DiffuseHighMap int 0
+		param_named DiffuseLowMap int 1
+		param_named LightMap int 2
+	}
+}
+
+fragment_program MegaClusterFP unified
+{
+	delegate MegaClusterFPHLSL
+	delegate MegaClusterFPGLSL
+}
+
+fragment_program MegaClusterGBufferFP hlsl: MegaClusterFPParams
+{
+	source megacluster.hlsl
+	target ps_2_0
+	entry_point MegaClusterPS
+	preprocessor_defines PIN_GBUFFER
+}
+
+vertex_program MegaClusterWaterVPHLSL hlsl: MegaClusterWaterVPParams
+{
+	source megacluster.hlsl
+	target vs_2_0
+	entry_point MegaClusterVS
+	preprocessor_defines PIN_WATER
+}
+
+vertex_program MegaClusterWaterVPGLSL glsl: MegaClusterWaterVPParams
+{
+	source autogen/megacluster_MegaClusterVS_PIN_WATER.glsl
+}
+
+vertex_program MegaClusterWaterVP unified
+{
+    delegate MegaClusterWaterVPHLSL
+    delegate MegaClusterWaterVPGLSL
+}
+
+fragment_program MegaClusterWaterFPHLSL hlsl: MegaClusterFPParams
+{
+	source megacluster.hlsl
+	target ps_2_0
+	entry_point MegaClusterPS
+	preprocessor_defines PIN_WATER
+}
+
+fragment_program MegaClusterWaterFPGLSL glsl: MegaClusterFPParams
+{
+	source autogen/megacluster_MegaClusterPS_PIN_WATER.glsl
+
+	default_params
+	{
+		param_named DiffuseHighMap int 0
+		param_named DiffuseLowMap int 1
+		param_named LightMap int 2
+	}
+}
+
+fragment_program MegaClusterWaterFP unified
+{
+	delegate MegaClusterWaterFPHLSL
+	delegate MegaClusterWaterFPGLSL
+}
+
+abstract pass MegaClusterPassShaders
+{
+	texture_unit
+	{
+		texture textures/ClusterMipsClose.dds
+        filtering trilinear
+	}
+	
+	texture_unit
+	{
+		texture textures/ClusterMipsFar.dds
+        filtering trilinear
+	}
+
+    texture_unit LightMap
+    {
+        texture LightGrid
+        filtering trilinear
+        tex_address_mode wrap wrap wrap
+    }
+}
+
+material MegaCluster
+{
+    technique mobile
+    {
+        gpu_vendor_rule include imagination_technologies
+
+        lod_index 1
+
+		pass
+		{
+			ambient 0.5 0.5 0.5
+            diffuse 1.0 1.0 1.0
+			// mimic current wood shader limitation
+			max_lights 2
+
+			texture_unit
+			{
+				tex_coord_set 0
+				texture textures/ClusterMipsClose.pvr
+		        filtering trilinear
+
+                transform 0.0009765625 0 0 0 0 0.0009765625 0 0 0 0 1 0 0 0 0 1
+		        
+		        colour_op_ex source1 src_texture src_texture
+		        alpha_op_ex source1 src_texture src_texture
+			}
+
+			texture_unit
+			{
+				tex_coord_set 1
+				texture textures/ClusterMipsFar.pvr
+		        filtering trilinear
+		        
+                transform 0.0009765625 0 0 0 0 0.0009765625 0 0 0 0 1 0 0 0 0 1
+		        
+		        colour_op_ex blend_current_alpha src_current src_texture
+			}
+
+			texture_unit
+			{
+		        colour_op_ex modulate src_current src_diffuse
+			}
+		}
+	}
+
+	technique ffp
+	{
+        gpu_vendor_rule exclude imagination_technologies
+
+        lod_index 1
+
+		pass
+		{
+			ambient 0.5 0.5 0.5
+            diffuse 1.0 1.0 1.0
+			// mimic current wood shader limitation
+			max_lights 2
+
+			texture_unit
+			{
+				tex_coord_set 0
+				texture textures/ClusterMipsClose.dds
+		        filtering trilinear
+		        
+		        colour_op_ex source1 src_texture src_texture
+		        alpha_op_ex source1 src_texture src_texture
+			}
+
+			texture_unit
+			{
+				tex_coord_set 1
+				texture textures/ClusterMipsFar.dds
+		        filtering trilinear
+		        
+		        colour_op_ex blend_current_alpha src_current src_texture
+			}
+
+			texture_unit
+			{
+		        colour_op_ex modulate src_current src_diffuse
+			}
+		}
+	}
+
+	technique default
+	{
+        gpu_vendor_rule exclude imagination_technologies
+
+		lod_index 0
+
+		pass: MegaClusterPassShaders
+		{
+			vertex_program_ref MegaClusterVP
+			{
+			}
+
+			fragment_program_ref MegaClusterFP
+			{
+			}
+		}
+	}
+
+	technique gbuffer
+	{
+        gpu_vendor_rule exclude imagination_technologies
+        
+		scheme MRT
+
+		pass: MegaClusterPassShaders
+		{
+			vertex_program_ref MegaClusterVP
+			{
+			}
+
+			fragment_program_ref MegaClusterGBufferFP
+			{
+			}
+		}
+	}
+}
+
+abstract pass MegaClusterWaterPassFFP
+{
+	ambient 0.5 0.5 0.5
+	diffuse 1.0 1.0 1.0
+    specular 0.4 0.4 0.4 25 // keep this in line with ice
+	
+	cull_hardware none
+	cull_software none
+	depth_bias -4.8 -0.6 // keep this in line with face decals
+
+	// mimic current wood shader limitation
+	max_lights 2
+
+	texture_unit
+	{
+		texture textures/water_Subsurface.dds
+		tex_coord_set 0
+		colour_op_ex source1 src_texture src_texture
+	}
+		
+	texture_unit
+	{
+		texture textures/water_Wave.dds
+		tex_coord_set 0
+		filtering trilinear
+		colour_op_ex blend_texture_alpha src_texture src_current 
+	}
+
+	texture_unit
+	{
+		texture textures/water_Subsurface.dds
+		tex_coord_set 1
+		filtering trilinear
+		colour_op_ex blend_texture_alpha src_current src_texture
+	}
+		
+	texture_unit
+	{
+		colour_op_ex modulate src_current src_diffuse
+	}		
+}
+
+abstract pass MegaClusterWaterPassShaders
+{
+	cull_hardware none
+	cull_software none
+	depth_bias -4.8 -0.6 // keep this in line with face decals
+
+	texture_unit
+	{
+		texture textures/water_Wave.dds
+        filtering trilinear
+	}
+		
+	texture_unit
+	{
+		texture textures/water_Subsurface.dds
+        filtering trilinear
+	}
+
+    texture_unit LightMap
+    {
+        texture LightGrid
+        filtering trilinear
+        tex_address_mode wrap wrap wrap
+    }
+}
+
+material MegaClusterWater
+{
+    technique mobile
+    {
+        gpu_vendor_rule include imagination_technologies
+
+        lod_index 1
+
+        pass: MegaClusterWaterPassFFP
+        {
+            texture_unit
+            {
+                scale 1024 1024
+				scroll_anim 0 0.75
+            }
+
+            texture_unit
+            {
+                scale 1024 1024
+				scroll_anim 0 1
+            }
+
+            texture_unit
+            {
+                scale 1024 1024
+            }
+        }
+    }
+
+	technique ffp
+	{
+		lod_index 1
+
+		pass: MegaClusterWaterPassFFP
+		{
+			texture_unit
+			{
+				scroll_anim 0 0.75
+			}
+			
+			texture_unit
+			{
+				scroll_anim 0 1
+			}
+		}
+	}
+
+	technique default
+	{
+		lod_index 0
+
+		pass: MegaClusterWaterPassShaders
+		{
+			vertex_program_ref MegaClusterWaterVP
+			{
+			}
+
+			fragment_program_ref MegaClusterWaterFP
+			{
+			}
+		}
+	}
+}
